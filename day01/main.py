@@ -8,9 +8,9 @@ __license__ = "MIT"
 
 import argparse
 import time
-import os
 DAY = 1
 FPATH = __file__.rstrip(__file__.split('/')[-1])
+if FPATH == "" : FPATH = __file__.rstrip(__file__.split('\\')[-1])
 
 
 
@@ -63,7 +63,7 @@ def main(args):
     
     if args.verbose: print("\nAdvent of Code 2021 - Day",DAY,'\n')
     if args.debug: print("[d]",args)
-    if args.debug: print("[d]",__file__.rstrip(__file__.split('/')[-1]))
+    if args.debug: print("[d]",FPATH)
     starttime=time.time()
     if args.part!='2':Part1(args)
     halftime=time.time() 
