@@ -1,112 +1,77 @@
-#!/usr/bin/env python3
-"""
-Advent of Code 2021
-"""
-__author__ = "Jachoooo"
-__version__ = "0.1.0"
-__license__ = "MIT"
-
-import argparse
+#Advent of Code 2021
+#JKL
 import time
-DAY = 0
-FPATH = __file__.rstrip(__file__.split('/')[-1])
-if FPATH == "" : FPATH = __file__.rstrip(__file__.split('\\')[-1])
+import numpy as np
+from numpy.lib.function_base import average
+FILENAME="input.txt"
+starttime=time.time()
 
+#Part 1
+inputFile=open(FILENAME,'r')
+H=0
+arr=[]
+for line in inputFile:
+    L=len(line.strip())
+    for c in line.strip():
+        arr.append(int(c))
+    H+=1
+inputFile.close()
 
+arr=np.array(arr).reshape((H,L))
+arr=np.round(np.mean(arr,axis=0)).astype(int).astype(str)
 
-def Part1(args):
-    if args.test:
-        data=inputreader(FPATH+"test"+args.test+".txt")
-    else:
-        data=inputreader(FPATH+"input.txt")
-    
-    result=0
-    
-    if args.debug: print('[d]',data)
-    if args.verbose: print('Part_1 result = ',end='')
-    print(result)
+gamma=''
+epsilon=''
+rev={'0':'1','1':'0'}
+for c in arr:
+    gamma+=c
+    epsilon+=rev[c]
+gamma=int(gamma,base=2)
+epsilon=int(epsilon,base=2)
+print("\neps =",epsilon)
+print("gam =",gamma)
 
-def Part2(args):
-    if args.test:
-        data=inputreader(FPATH+"test"+args.test+".txt")
-    else:
-        data=inputreader(FPATH+"input.txt")
+print("Part1 result =",epsilon*gamma,"\n")
 
-    result=0
+#Part 2
 
-    if args.debug: print('[d]',data)
-    if args.verbose: print('Part_2 result = ',end='')
-    print(result)
+inputFile=open(FILENAME,'r')
+H=0
+arr=[]
+for line in inputFile:
+    L=len(line.strip())
+    for c in line.strip():
+        arr.append(int(c))
+    H+=1
+inputFile.close()
 
-def inputreader(name):
-    inputFile=open(name,'r')
-    ret=[]
-    for line in inputFile:
-        ret.append(line.rstrip())
-    inputFile.close()
-    return ret
+arr=np.array(arr).reshape((H,L))
+#print(arr)
+arr2=np.copy(arr)
 
-def main(args):
-    """ Main entry point of the app """
-    
-    if args.verbose: print("\nAdvent of Code 2021 - Day",DAY,'\n')
-    if args.debug: print("[d]",args)
-    if args.debug: print("[d]",FPATH)
-    starttime=time.time()
-    if args.part!='2':Part1(args)
-    halftime=time.time() 
-    if args.part!='1':Part2(args)
-    if args.verbose:
-        print('')
-        if args.part==0: 
-            print("Part 1 execution time = {:.6f} s".format(halftime-starttime))
-            print("Part 2 execution time = {:.6f} s".format(time.time()-halftime))
-        print("Total execution time  = {:.6f} s".format(time.time()-starttime))
+for i in range(arr.shape[1]):
+    mn=np.mean(arr[:,i])
+    rn=np.round(mn).astype(int)
+    if mn == 0.5 : rn = 1
+    arr=np.delete(arr,arr[:,i]!=rn,0)
 
-if __name__ == "__main__":
-    """ This is executed when run from the command line """
-    parser = argparse.ArgumentParser()
+OxR=''
+for c in arr[0].astype(str):
+    OxR+=c
+print("OxR =",OxR:=int(OxR,base=2))
 
-    # Optional argument debug which defaults to False
-    parser.add_argument("-d",
-                        "--debug",
-                        action="store_true", 
-                        default=False,
-                        help="Enables debug messages")
+for i in range(arr2.shape[1]):
+    mn=np.mean(arr2[:,i])
+    rn=np.round(mn).astype(int)
+    if mn == 0.5 : rn = 1
+    if np.delete(arr2,arr2[:,i]==rn,0).size==0:break
+    arr2=np.delete(arr2,arr2[:,i]==rn,0)
+    #print(arr2.size)
 
-    # Optional argument which requires a parameter (eg. -d test)
-    parser.add_argument("-t",
-                        "--test",
-                        action="store",
-                        default="",
-                        dest="test",
-                        help='Enables test input file')
+CsR=''
+for c in arr2[0].astype(str):
+    CsR+=c
+print("CsR =",CsR:=int(CsR,base=2))
 
-
-    # Optional verbosity counter (eg. -v, -vv, -vvv, etc.)
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        default=False,
-        help="Enables verbose output")
-
-    # Optional part selection
-    parser.add_argument(
-        "-p",
-        "--part",
-        action="store",
-        default=0,
-        dest="part",
-        help="Select part")
-
-    # Specify output of "--version"
-    parser.add_argument(
-        "-V",
-        "--version",
-        action="version",
-        version="Version {version}".format(version=__version__))
-
-    args = parser.parse_args()
-    main(args)
-
+print("Part2 result =",CsR*OxR,"\n")
+print("Done in {:.6f} s".format(time.time()-starttime))
