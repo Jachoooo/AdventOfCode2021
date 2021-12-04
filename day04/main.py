@@ -1,5 +1,6 @@
 #Advent of Code 2021
 #JKL
+
 import time
 from copy import deepcopy
 FILENAME="input.txt"
@@ -9,24 +10,28 @@ else:
     D=False
 starttime=time.time()
 
+
+
 class Board:
 
     def __init__(self, numBoard,ID):
         self.numBoard = numBoard
         self.ID=ID
+
     def setCallBoard(self,callDict):
         self.callBoard = deepcopy(self.numBoard)
         for i in range(5):
             for j in range(5):
                 self.callBoard[i][j]=callDict[self.callBoard[i][j]]
+
     def findFirstBingo(self):
         ret=100000000
         for i in range(5):
             ret=min(max(self.callBoard[i][:]),ret)
         for j in range(5):
             ret=min(max([i[j] for i in self.callBoard]),ret)
-
         return [ret,self.ID]
+
     def notcalled(self,num):
         ret=0
         ret2=0
@@ -36,10 +41,9 @@ class Board:
                     ret+=int(self.numBoard[i][j])
                 elif self.callBoard[i][j]==num:
                     ret2=self.numBoard[i][j]
-
         return ret,int(ret2)
-    def printBoard(self,num=99):
 
+    def printBoard(self,num=99):
         print("board =",self.ID)
         print('+----------------+')
         for i in range(5):
@@ -82,11 +86,11 @@ for line in inputFile:
         i+=1
         temp=[]
 
-
 minScore=1000000000
 minID=0
 maxScore=0
 maxID=0
+
 for i,board in enumerate(boards) :
     board.setCallBoard(callDict) 
     if D:print('\nBoard',i+1,'\n',
@@ -126,6 +130,7 @@ temp1:=boards[maxID-1].notcalled(boards[maxID-1].findFirstBingo()[0])[0],
 temp2:=boards[maxID-1].notcalled(boards[maxID-1].findFirstBingo()[0])[1],
 '=',
 temp1*temp2,'\n')
+
 
 
 print("Done in {:.6f} s".format(time.time()-starttime))
