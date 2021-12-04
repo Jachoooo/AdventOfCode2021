@@ -1,112 +1,132 @@
-#!/usr/bin/env python3
-"""
-Advent of Code 2021
-"""
-__author__ = "Jachoooo"
-__version__ = "0.1.0"
-__license__ = "MIT"
-
-import argparse
+#Advent of Code 2021
+#JKL
 import time
-DAY = 0
-FPATH = __file__.rstrip(__file__.split('/')[-1])
-if FPATH == "" : FPATH = __file__.rstrip(__file__.split('\\')[-1])
+from copy import deepcopy
+FILENAME="input.txt"
+if FILENAME=="test.txt":
+    D=True 
+else:
+    D=False
+starttime=time.time()
 
+class Board:
 
+    def __init__(self, numBoard,ID):
+        self.numBoard = numBoard
+        self.ID=ID
+    def setCallBoard(self,callDict):
+        self.callBoard = deepcopy(self.numBoard)
+        for i in range(5):
+            for j in range(5):
+                self.callBoard[i][j]=callDict[self.callBoard[i][j]]
+    def findFirstBingo(self):
+        ret=100000000
+        for i in range(5):
+            ret=min(max(self.callBoard[i][:]),ret)
+        for j in range(5):
+            ret=min(max([i[j] for i in self.callBoard]),ret)
 
-def Part1(args):
-    if args.test:
-        data=inputreader(FPATH+"test"+args.test+".txt")
+        return [ret,self.ID]
+    def notcalled(self,num):
+        ret=0
+        ret2=0
+        for i in range(5):
+            for j in range(5):
+                if self.callBoard[i][j]>num:
+                    ret+=int(self.numBoard[i][j])
+                elif self.callBoard[i][j]==num:
+                    ret2=self.numBoard[i][j]
+
+        return ret,int(ret2)
+    def printBoard(self,num=99):
+
+        print("board =",self.ID)
+        print('+----------------+')
+        for i in range(5):
+            print("| ",end='')
+            for j in range(5):
+                if self.callBoard[i][j]<=num:
+                    print("\u001b[1m",end='')
+                if len(self.numBoard[i][j])==1:
+                    print(' '+self.numBoard[i][j],end=' ')
+                else:    
+                    print(self.numBoard[i][j],end=' ')
+                print("\u001b[0m",end='')
+            print('|')
+        print('+----------------+')
+        
+        
+
+#Part 1
+print("\u001b[2J\u001b[0;0H")
+inputFile=open(FILENAME,'r')
+
+numbers=inputFile.readline().strip().split(',')
+callDict={}
+i=1
+for num in numbers:
+    callDict[num]=i
+    i+=1
+if D:print(callDict)  
+
+temp=inputFile.readline()
+temp=[]
+boards=[]
+i=1
+for line in inputFile:
+    if line != '\n':
+        temp.append(
+        [st for st in line.strip().split(' ') if st != ''])
     else:
-        data=inputreader(FPATH+"input.txt")
-    
-    result=0
-    
-    if args.debug: print('[d]',data)
-    if args.verbose: print('Part_1 result = ',end='')
-    print(result)
-
-def Part2(args):
-    if args.test:
-        data=inputreader(FPATH+"test"+args.test+".txt")
-    else:
-        data=inputreader(FPATH+"input.txt")
-
-    result=0
-
-    if args.debug: print('[d]',data)
-    if args.verbose: print('Part_2 result = ',end='')
-    print(result)
-
-def inputreader(name):
-    inputFile=open(name,'r')
-    ret=[]
-    for line in inputFile:
-        ret.append(line.rstrip())
-    inputFile.close()
-    return ret
-
-def main(args):
-    """ Main entry point of the app """
-    
-    if args.verbose: print("\nAdvent of Code 2021 - Day",DAY,'\n')
-    if args.debug: print("[d]",args)
-    if args.debug: print("[d]",FPATH)
-    starttime=time.time()
-    if args.part!='2':Part1(args)
-    halftime=time.time() 
-    if args.part!='1':Part2(args)
-    if args.verbose:
-        print('')
-        if args.part==0: 
-            print("Part 1 execution time = {:.6f} s".format(halftime-starttime))
-            print("Part 2 execution time = {:.6f} s".format(time.time()-halftime))
-        print("Total execution time  = {:.6f} s".format(time.time()-starttime))
-
-if __name__ == "__main__":
-    """ This is executed when run from the command line """
-    parser = argparse.ArgumentParser()
-
-    # Optional argument debug which defaults to False
-    parser.add_argument("-d",
-                        "--debug",
-                        action="store_true", 
-                        default=False,
-                        help="Enables debug messages")
-
-    # Optional argument which requires a parameter (eg. -d test)
-    parser.add_argument("-t",
-                        "--test",
-                        action="store",
-                        default="",
-                        dest="test",
-                        help='Enables test input file')
+        boards.append(Board(temp,i))
+        i+=1
+        temp=[]
 
 
-    # Optional verbosity counter (eg. -v, -vv, -vvv, etc.)
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        default=False,
-        help="Enables verbose output")
+minScore=1000000000
+minID=0
+maxScore=0
+maxID=0
+for i,board in enumerate(boards) :
+    board.setCallBoard(callDict) 
+    if D:print('\nBoard',i+1,'\n',
+    board.numBoard[0],'\t',board.callBoard[0],'\n',
+    board.numBoard[1],'\t',board.callBoard[1],'\n',
+    board.numBoard[2],'\t',board.callBoard[2],'\n',
+    board.numBoard[3],'\t',board.callBoard[3],'\n',
+    board.numBoard[4],'\t',board.callBoard[4])
+    if D:print('Bingo in',board.findFirstBingo()[0])
+    if D:print('Sum =',board.notcalled(board.findFirstBingo()[0])[0])
+    tempscore,tempid=board.findFirstBingo()
+    if minScore > tempscore:
+        minScore=tempscore
+        minID=tempid
+    if maxScore < tempscore:
+        maxScore=tempscore
+        maxID=tempid
+        
+if D:print(minScore,minID)
+print('Best',end=' ')
+boards[minID-1].printBoard(minScore)
+print(
+temp1:=boards[minID-1].notcalled(boards[minID-1].findFirstBingo()[0])[0],
+'*',
+temp2:=boards[minID-1].notcalled(boards[minID-1].findFirstBingo()[0])[1],
+'=',
+temp1*temp2,'\n')
 
-    # Optional part selection
-    parser.add_argument(
-        "-p",
-        "--part",
-        action="store",
-        default=0,
-        dest="part",
-        help="Select part")
 
-    # Specify output of "--version"
-    parser.add_argument(
-        "-V",
-        "--version",
-        action="version",
-        version="Version {version}".format(version=__version__))
+#Part 2
+if D:print(maxScore,maxID)
+print('Worst',end=' ')
+boards[maxID-1].printBoard(maxScore)
+print(
+temp1:=boards[maxID-1].notcalled(boards[maxID-1].findFirstBingo()[0])[0],
+'*',
+temp2:=boards[maxID-1].notcalled(boards[maxID-1].findFirstBingo()[0])[1],
+'=',
+temp1*temp2,'\n')
 
-    args = parser.parse_args()
-    main(args)
 
+print("Done in {:.6f} s".format(time.time()-starttime))
+inputFile.close()
