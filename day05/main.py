@@ -1,112 +1,83 @@
-#!/usr/bin/env python3
-"""
-Advent of Code 2021
-"""
-__author__ = "Jachoooo"
-__version__ = "0.1.0"
-__license__ = "MIT"
-
-import argparse
 import time
-DAY = 0
-FPATH = __file__.rstrip(__file__.split('/')[-1])
-if FPATH == "" : FPATH = __file__.rstrip(__file__.split('\\')[-1])
+import numpy as np
+from PIL import Image
+FILENAME="input.txt"
+
+if FILENAME=="test.txt":
+    D=True 
+    SIZE=10
+else:
+    D=False
+    SIZE=1000
+starttime=time.time()
 
 
 
-def Part1(args):
-    if args.test:
-        data=inputreader(FPATH+"test"+args.test+".txt")
+print("\u001b[2J\u001b[0;0H")
+inputFile=open(FILENAME,'r')
+Coords=[]
+for line in inputFile:
+    Coords.append([int(y) for x in line.strip().split(' -> ') for y in x.split(',')])
+inputFile.close()
+
+if D:[print(Coord) for Coord in Coords]
+
+
+
+
+#Part 1
+diagram=np.zeros([SIZE,SIZE],dtype=int)
+for line in Coords:
+    if line[0] == line[2]:
+        start = min(line[1],line[3])
+        stop = max(line[1],line[3])+1
+        diagram[start:stop,line[0]]+=1
+    elif line[1] == line[3]:
+        start = min(line[0],line[2])
+        stop = max(line[0],line[2])+1
+        diagram[line[1],start:stop]+=1
     else:
-        data=inputreader(FPATH+"input.txt")
-    
-    result=0
-    
-    if args.debug: print('[d]',data)
-    if args.verbose: print('Part_1 result = ',end='')
-    print(result)
+        continue
 
-def Part2(args):
-    if args.test:
-        data=inputreader(FPATH+"test"+args.test+".txt")
+#Part 2
+diagram2=np.zeros([SIZE,SIZE],dtype=int)
+for line in Coords:
+    if line[0] == line[2]:
+        start = min(line[1],line[3])
+        stop = max(line[1],line[3])+1
+        diagram2[start:stop,line[0]]+=1
+    elif line[1] == line[3]:
+        start = min(line[0],line[2])
+        stop = max(line[0],line[2])+1
+        diagram2[line[1],start:stop]+=1
     else:
-        data=inputreader(FPATH+"input.txt")
+        x=line[0]
+        if line[0]<line[2]:
+            dx=1 
+        else:
+            dx=-1 
+        y=line[1]
+        if line[1]<line[3]:
+            dy=1 
+        else:
+            dy=-1 
+        while True:
+            diagram2[y,x]+=1
+            if x == line[2] : break
+            x+=dx
+            y+=dy
 
-    result=0
+        
+if D:print(diagram2)
+print('Part 1 result =',np.sum(diagram>1))
+print('Part 2 result =',np.sum(diagram2>1))
+print("Done in {:.6f} s".format(time.time()-starttime))
 
-    if args.debug: print('[d]',data)
-    if args.verbose: print('Part_2 result = ',end='')
-    print(result)
-
-def inputreader(name):
-    inputFile=open(name,'r')
-    ret=[]
-    for line in inputFile:
-        ret.append(line.rstrip())
-    inputFile.close()
-    return ret
-
-def main(args):
-    """ Main entry point of the app """
-    
-    if args.verbose: print("\nAdvent of Code 2021 - Day",DAY,'\n')
-    if args.debug: print("[d]",args)
-    if args.debug: print("[d]",FPATH)
-    starttime=time.time()
-    if args.part!='2':Part1(args)
-    halftime=time.time() 
-    if args.part!='1':Part2(args)
-    if args.verbose:
-        print('')
-        if args.part==0: 
-            print("Part 1 execution time = {:.6f} s".format(halftime-starttime))
-            print("Part 2 execution time = {:.6f} s".format(time.time()-halftime))
-        print("Total execution time  = {:.6f} s".format(time.time()-starttime))
-
-if __name__ == "__main__":
-    """ This is executed when run from the command line """
-    parser = argparse.ArgumentParser()
-
-    # Optional argument debug which defaults to False
-    parser.add_argument("-d",
-                        "--debug",
-                        action="store_true", 
-                        default=False,
-                        help="Enables debug messages")
-
-    # Optional argument which requires a parameter (eg. -d test)
-    parser.add_argument("-t",
-                        "--test",
-                        action="store",
-                        default="",
-                        dest="test",
-                        help='Enables test input file')
-
-
-    # Optional verbosity counter (eg. -v, -vv, -vvv, etc.)
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        default=False,
-        help="Enables verbose output")
-
-    # Optional part selection
-    parser.add_argument(
-        "-p",
-        "--part",
-        action="store",
-        default=0,
-        dest="part",
-        help="Select part")
-
-    # Specify output of "--version"
-    parser.add_argument(
-        "-V",
-        "--version",
-        action="version",
-        version="Version {version}".format(version=__version__))
-
-    args = parser.parse_args()
-    main(args)
-
+mx=100/np.max(diagram)
+img=Image.fromarray(255-(diagram*mx+(diagram>1)*155))
+img=img.convert('RGB')
+img.save('part1.png',bitmap_format='png')
+mx=100/np.max(diagram2)
+img=Image.fromarray(255-(diagram2*mx+(diagram2>1)*155))
+img=img.convert('RGB')
+img.save('part2.png',bitmap_format='png')
