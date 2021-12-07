@@ -1,4 +1,5 @@
 import time
+import webbrowser
 import numpy as np
 FILENAME="input.txt"
 if FILENAME=="test.txt":
@@ -6,7 +7,7 @@ if FILENAME=="test.txt":
 else:
     D=False
 starttime=time.time()
-   
+webbrowser.open('https://www.youtube.com/watch?v=LDU_Txk06tM')
 
 
 print("\u001b[2J\u001b[0;0H")
