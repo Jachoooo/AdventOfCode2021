@@ -20,7 +20,7 @@ print("Part 1 result =",np.sum(np.abs(nums-int(np.median(nums)))))
 
 
 
-p2=10000000000000
+p2=np.inf
 for i in range(min(nums),mx:=max(nums)+1):
     if not i%100:print('[',int(i*100/mx),'%\t]',p2)    
     res=0
