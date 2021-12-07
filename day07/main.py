@@ -7,7 +7,7 @@ if FILENAME=="test.txt":
 else:
     D=False
 starttime=time.time()
-webbrowser.open('https://www.youtube.com/watch?v=LDU_Txk06tM')
+webbrowser.open('https://www.youtube.com/watch?v=LDU_Txk06tM',new=1)
 
 
 print("\u001b[2J\u001b[0;0H")
