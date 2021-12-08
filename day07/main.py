@@ -18,7 +18,8 @@ nums=[int(x) for x in inputFile.readline().strip().split(',')]
 
 
 nums=np.array(nums)
-print("Part 1 result =",p1:=np.sum(np.abs(nums-int(np.median(nums)))),end='\n\n')
+print("Part 1 result =",
+p1:=np.sum(np.abs(nums-int(np.median(nums)))),end='\n\n')
 
 
 
