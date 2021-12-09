@@ -5,7 +5,7 @@ if FILENAME=="test.txt":
     D=True 
 else:
     D=False
-starttime=time.time()
+starttime=time.perf_counter()
 
 
 def printmsg(OGmsg,NEWmsg,Nums):
@@ -161,7 +161,7 @@ for msg in inp:
 print("\u001b[?25h")
 print("\nPart 1 result =",res1)        
 print("Part 2 result =",ret2)
-print("Done in {:.6f} s".format(time.time()-starttime))
+print("Done in {:.6f} s".format(time.perf_counter()-starttime))
 
 
 
