@@ -58,9 +58,12 @@ while tempflashes<100 :
     print(f'[Step = {step+1:<7} Flashes={flashes:<7}]')
 
     step+=1
-    printarray(array)
-    if step == 100: res1= flashes
+    
+    if step == 100: 
+        res1= flashes
+        res1arr=np.copy(array)
 
+printarray(res1arr)
 print(f"\nPart 1 result = {res1}")        
 print(f"Part 2 result = {step}")
 print("Done in {:.6f} s".format(time.perf_counter()-starttime))
