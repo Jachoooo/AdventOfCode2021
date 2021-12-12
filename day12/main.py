@@ -1,112 +1,95 @@
-#!/usr/bin/env python3
-"""
-Advent of Code 2021
-"""
-__author__ = "Jachoooo"
-__version__ = "0.1.0"
-__license__ = "MIT"
-
-import argparse
 import time
-DAY = 0
-FPATH = __file__.rstrip(__file__.split('/')[-1])
-if FPATH == "" : FPATH = __file__.rstrip(__file__.split('\\')[-1])
+
+FILENAME="input.txt"
+if FILENAME=="test.txt":
+    D=True 
+else:
+    D=False
+starttime=time.perf_counter()
+
+class node:
+    def __init__(self,name) -> None:
+        self.name=name
+        self.connected=set()
+    def add_ngbr(self,name):
+        self.connected.add(name)
+    
+
+def search1(visited):
+    global nodes
+    global paths
+    global D
+    vislist=visited.split(',')
+    curNode=vislist[-1]
+    if D:print('[1]Searching in ',nodes[curNode].connected)
+    for ngbr in nodes[curNode].connected:
+        if ngbr=='end':
+            if D:print(visited+','+'end')
+            paths.add(visited+','+'end')
+            continue
+        if ngbr.isupper():
+            search1(visited+','+ngbr)    
+        if (not ngbr.isupper()) and not(ngbr in vislist):
+            search1(visited+','+ngbr)
+
+
+def search2(visited,sm_cave):
+    global nodes
+    global paths2
+    global D
+    vislist=visited.split(',')
+    curNode=vislist[-1]
+    if sm_cave in vislist:
+        vislist.remove(sm_cave)
+    if D:print('[2]Searching in ',nodes[curNode].connected)
+    for ngbr in nodes[curNode].connected:
+        if ngbr=='end':
+            if D:print(visited+','+'end')
+            paths2.add(visited+','+'end')
+            continue
+        if ngbr.isupper():
+            search2(visited+','+ngbr,sm_cave)    
+        if (not ngbr.isupper()) and not(ngbr in vislist):
+            search2(visited+','+ngbr,sm_cave)
+
+
+paths=set()
+paths2=set()
+nodes={}
+print("\u001b[2J\u001b[0;0H")
+with open(FILENAME,'r') as file:
+    for line in file:
+        node1,node2=line.strip().split('-')
+        n1=node(node1)
+        n2=node(node2)
+
+        if node1 in nodes.keys():
+            nodes[node1].add_ngbr(node2)
+        else:
+            nodes[node1]=n1
+            nodes[node1].add_ngbr(node2)
+
+        if node2 in nodes.keys():
+            nodes[node2].add_ngbr(node1)
+        else:
+            nodes[node2]=n2
+            nodes[node2].add_ngbr(node1)
 
 
 
-def Part1(args):
-    if args.test:
-        data=inputreader(FPATH+"test"+args.test+".txt")
+search1('start')
+
+
+
+for elem in nodes.values():
+    if elem.name.isupper() or (elem.name in ['start','end']):
+        continue
     else:
-        data=inputreader(FPATH+"input.txt")
-    
-    result=0
-    
-    if args.debug: print('[d]',data)
-    if args.verbose: print('Part_1 result = ',end='')
-    print(result)
-
-def Part2(args):
-    if args.test:
-        data=inputreader(FPATH+"test"+args.test+".txt")
-    else:
-        data=inputreader(FPATH+"input.txt")
-
-    result=0
-
-    if args.debug: print('[d]',data)
-    if args.verbose: print('Part_2 result = ',end='')
-    print(result)
-
-def inputreader(name):
-    inputFile=open(name,'r')
-    ret=[]
-    for line in inputFile:
-        ret.append(line.rstrip())
-    inputFile.close()
-    return ret
-
-def main(args):
-    """ Main entry point of the app """
-    
-    if args.verbose: print("\nAdvent of Code 2021 - Day",DAY,'\n')
-    if args.debug: print("[d]",args)
-    if args.debug: print("[d]",FPATH)
-    starttime=time.time()
-    if args.part!='2':Part1(args)
-    halftime=time.time() 
-    if args.part!='1':Part2(args)
-    if args.verbose:
-        print('')
-        if args.part==0: 
-            print("Part 1 execution time = {:.6f} s".format(halftime-starttime))
-            print("Part 2 execution time = {:.6f} s".format(time.time()-halftime))
-        print("Total execution time  = {:.6f} s".format(time.time()-starttime))
-
-if __name__ == "__main__":
-    """ This is executed when run from the command line """
-    parser = argparse.ArgumentParser()
-
-    # Optional argument debug which defaults to False
-    parser.add_argument("-d",
-                        "--debug",
-                        action="store_true", 
-                        default=False,
-                        help="Enables debug messages")
-
-    # Optional argument which requires a parameter (eg. -d test)
-    parser.add_argument("-t",
-                        "--test",
-                        action="store",
-                        default="",
-                        dest="test",
-                        help='Enables test input file')
+        search2('start',elem.name)
 
 
-    # Optional verbosity counter (eg. -v, -vv, -vvv, etc.)
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        default=False,
-        help="Enables verbose output")
 
-    # Optional part selection
-    parser.add_argument(
-        "-p",
-        "--part",
-        action="store",
-        default=0,
-        dest="part",
-        help="Select part")
 
-    # Specify output of "--version"
-    parser.add_argument(
-        "-V",
-        "--version",
-        action="version",
-        version="Version {version}".format(version=__version__))
-
-    args = parser.parse_args()
-    main(args)
-
+print(f"\nPart 1 result = {len(paths)}")        
+print(f"Part 2 result = {len(paths2)}")
+print("Done in {:.6f} s".format(time.perf_counter()-starttime))
