@@ -78,18 +78,22 @@ with open(FILENAME,'r') as file:
 
 
 search1('start')
-
-
-
+print('[Part 1] Done!')
+i=0
+for elem in nodes.values():
+    if not(elem.name.isupper() or (elem.name in ['start','end'])):i+=1
+j=0
 for elem in nodes.values():
     if elem.name.isupper() or (elem.name in ['start','end']):
         continue
     else:
         search2('start',elem.name)
+        j+=1
+        print('[Part 2]',int(j*100/i),'%')
 
 
 
 
-print(f"\nPart 1 result = {len(paths)}")        
+print(f"Part 1 result = {len(paths)}")     
 print(f"Part 2 result = {len(paths2)}")
 print("Done in {:.6f} s".format(time.perf_counter()-starttime))
