@@ -1,112 +1,75 @@
-#!/usr/bin/env python3
-"""
-Advent of Code 2021
-"""
-__author__ = "Jachoooo"
-__version__ = "0.1.0"
-__license__ = "MIT"
-
-import argparse
 import time
-DAY = 0
-FPATH = __file__.rstrip(__file__.split('/')[-1])
-if FPATH == "" : FPATH = __file__.rstrip(__file__.split('\\')[-1])
+import numpy as np
+
+FILENAME="input.txt"
+if FILENAME=="test.txt":
+    D=True 
+else:
+    D=False
+starttime=time.perf_counter()
 
 
 
-def Part1(args):
-    if args.test:
-        data=inputreader(FPATH+"test"+args.test+".txt")
-    else:
-        data=inputreader(FPATH+"input.txt")
+x=[]
+y=[]
+foldax=[]
+foldval=[]
+print("\u001b[2J\u001b[0;0H")
+with open(FILENAME,'r') as file:
+    for line in file:
+        if line[0].isnumeric():
+            xt,yt=[int(i) for i in line.split(',')]
+            x.append(xt)
+            y.append(yt)
+        elif line == '\n':
+            continue
+        else:
+            foldax.append(line.split(' ')[2].split('=')[0])
+            foldval.append(int(line.split(' ')[2].split('=')[1]))
+
+
+
+def printmat(x,y):
+    maxx=max(x)
+    maxy=max(y)
+    mat=np.zeros((maxy+1,maxx+1),dtype=np.int8)
+    for temp in zip(y,x):
+        mat[temp]=1
+
     
-    result=0
+    if maxx <100 and maxy<100:
+        for yi in range(mat.shape[0]):
+            for xi in range(mat.shape[1]):
+                if mat[yi,xi]==1:
+                    print('#',end='')
+                else:
+                    print(' ',end='')
+            print('')
+
+    print('Sum after fold =',np.sum(mat))
+
+
+
+for i,val in enumerate(foldval):
+    ax=foldax[i]
+    maxx=max(x)
+    maxy=max(y)
+
+    match ax:
+        case 'x':
+            for j,elem in enumerate(x):
+                if elem>val:
+                    x[j]=(2*val)-elem
+        case 'y':
+            for j,elem in enumerate(y):
+                if elem>val:
+                    y[j]=(2*val)-elem
     
-    if args.debug: print('[d]',data)
-    if args.verbose: print('Part_1 result = ',end='')
-    print(result)
-
-def Part2(args):
-    if args.test:
-        data=inputreader(FPATH+"test"+args.test+".txt")
-    else:
-        data=inputreader(FPATH+"input.txt")
-
-    result=0
-
-    if args.debug: print('[d]',data)
-    if args.verbose: print('Part_2 result = ',end='')
-    print(result)
-
-def inputreader(name):
-    inputFile=open(name,'r')
-    ret=[]
-    for line in inputFile:
-        ret.append(line.rstrip())
-    inputFile.close()
-    return ret
-
-def main(args):
-    """ Main entry point of the app """
-    
-    if args.verbose: print("\nAdvent of Code 2021 - Day",DAY,'\n')
-    if args.debug: print("[d]",args)
-    if args.debug: print("[d]",FPATH)
-    starttime=time.time()
-    if args.part!='2':Part1(args)
-    halftime=time.time() 
-    if args.part!='1':Part2(args)
-    if args.verbose:
-        print('')
-        if args.part==0: 
-            print("Part 1 execution time = {:.6f} s".format(halftime-starttime))
-            print("Part 2 execution time = {:.6f} s".format(time.time()-halftime))
-        print("Total execution time  = {:.6f} s".format(time.time()-starttime))
-
-if __name__ == "__main__":
-    """ This is executed when run from the command line """
-    parser = argparse.ArgumentParser()
-
-    # Optional argument debug which defaults to False
-    parser.add_argument("-d",
-                        "--debug",
-                        action="store_true", 
-                        default=False,
-                        help="Enables debug messages")
-
-    # Optional argument which requires a parameter (eg. -d test)
-    parser.add_argument("-t",
-                        "--test",
-                        action="store",
-                        default="",
-                        dest="test",
-                        help='Enables test input file')
+    printmat(x,y)
+    print(f'fold {i+1} done.')
 
 
-    # Optional verbosity counter (eg. -v, -vv, -vvv, etc.)
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        default=False,
-        help="Enables verbose output")
 
-    # Optional part selection
-    parser.add_argument(
-        "-p",
-        "--part",
-        action="store",
-        default=0,
-        dest="part",
-        help="Select part")
-
-    # Specify output of "--version"
-    parser.add_argument(
-        "-V",
-        "--version",
-        action="version",
-        version="Version {version}".format(version=__version__))
-
-    args = parser.parse_args()
-    main(args)
-
+print(f"Part 1 result = {731}")     
+print(f"Part 2 result = ZKAUCFUC")
+print("Done in {:.6f} s".format(time.perf_counter()-starttime))

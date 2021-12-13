@@ -1,4 +1,5 @@
 import time
+from functools import lru_cache
 
 FILENAME="input.txt"
 if FILENAME=="test.txt":
@@ -14,7 +15,7 @@ class node:
     def add_ngbr(self,name):
         self.connected.add(name)
     
-
+@lru_cache(maxsize=None)
 def search1(visited):
     global nodes
     global paths
@@ -32,7 +33,7 @@ def search1(visited):
         if (not ngbr.isupper()) and not(ngbr in vislist):
             search1(visited+','+ngbr)
 
-
+@lru_cache(maxsize=None)
 def search2(visited,sm_cave):
     global nodes
     global paths2
