@@ -1,112 +1,172 @@
-#!/usr/bin/env python3
-"""
-Advent of Code 2021
-"""
-__author__ = "Jachoooo"
-__version__ = "0.1.0"
-__license__ = "MIT"
-
-import argparse
 import time
-DAY = 0
-FPATH = __file__.rstrip(__file__.split('/')[-1])
-if FPATH == "" : FPATH = __file__.rstrip(__file__.split('\\')[-1])
+import numpy as np
+import cProfile
+import heapq
+
+FILENAME="test.txt"
+if FILENAME=="test.txt":
+    D=True 
+else:
+    D=False
+starttime=time.perf_counter()
 
 
+print("\u001b[2J\u001b[0;0H")
+with open(FILENAME,'r') as file:
+    maze=np.genfromtxt(file,delimiter=1,dtype=np.int16)
 
-def Part1(args):
-    if args.test:
-        data=inputreader(FPATH+"test"+args.test+".txt")
+
+stop=False
+curpos=(0,0)
+end=(maze.shape[1]-1,maze.shape[0]-1)
+updated=np.zeros_like(maze)
+updated[0,0]=1
+OGmaze=np.copy(maze)
+maze2=np.copy(maze)
+
+def search(y,x,updated,maze):
+    global OGmaze
+    
+
+    #time.sleep(1)
+    if x == maze.shape[1]-1 and y==maze.shape[0]-1:
+        
+        return 1
+
+    if y != maze.shape[1]-1 and x != maze.shape[0]-1:
+
+        if maze[y+1,x] < maze[y,x+1]:
+            
+            if updated[y+1,x]==0:
+                updated[y+1,x]=1
+                maze[y+1,x]+=maze[y,x]
+                search(y+1,x,updated,maze)
+            elif OGmaze[y+1,x]+maze[y,x]<maze[y+1,x]:
+                maze[y+1,x]=OGmaze[y+1,x]+maze[y,x]
+                search(y+1,x,updated,maze)
+
+            
+            if updated[y,x+1]==0:
+                updated[y,x+1]=1
+                maze[y,x+1]+=maze[y,x]
+                search(y,x+1,updated,maze)
+            elif OGmaze[y,x+1]+maze[y,x]<maze[y,x+1]:
+                maze[y,x+1]=OGmaze[y,x+1]+maze[y,x]
+                search(y,x+1,updated,maze)
+        else:
+            
+            
+            if updated[y,x+1]==0:
+                updated[y,x+1]=1
+                maze[y,x+1]+=maze[y,x]
+                search(y,x+1,updated,maze)
+            elif OGmaze[y,x+1]+maze[y,x]<maze[y,x+1]:
+                maze[y,x+1]=OGmaze[y,x+1]+maze[y,x]
+                search(y,x+1,updated,maze)
+            
+            
+            if updated[y+1,x]==0:
+                updated[y+1,x]=1
+                maze[y+1,x]+=maze[y,x]
+                search(y+1,x,updated,maze)
+            elif OGmaze[y+1,x]+maze[y,x]<maze[y+1,x]:
+                maze[y+1,x]=OGmaze[y+1,x]+maze[y,x]
+                search(y+1,x,updated,maze)
     else:
-        data=inputreader(FPATH+"input.txt")
+        if x != maze.shape[0]-1:
+                if updated[y,x+1]==0:
+                    updated[y,x+1]=1
+                    maze[y,x+1]+=maze[y,x]
+                    search(y,x+1,updated,maze)
+                elif OGmaze[y,x+1]+maze[y,x]<maze[y,x+1]:
+                    maze[y,x+1]=OGmaze[y,x+1]+maze[y,x]
+                    search(y,x+1,updated,maze)
+            
+        if y != maze.shape[1]-1:
+            if updated[y+1,x]==0:
+                updated[y+1,x]=1
+                maze[y+1,x]+=maze[y,x]
+                search(y+1,x,updated,maze)
+            elif OGmaze[y+1,x]+maze[y,x]<maze[y+1,x]:
+                maze[y+1,x]=OGmaze[y+1,x]+maze[y,x]
+                search(y+1,x,updated,maze)
+
+search(0,0,updated,maze)
+print(f"Part 1 result = {maze[-1,-1]-1}") 
+print("Done in {:.6f} s".format(time.perf_counter()-starttime))
+starttime=time.perf_counter()
+
+maze21=np.ones_like(maze2)+((maze2<9)*maze2)
+maze22=np.ones_like(maze21)+((maze21<9)*maze21)
+maze23=np.ones_like(maze22)+((maze22<9)*maze22)
+maze24=np.ones_like(maze23)+((maze23<9)*maze23)
+maze25=np.ones_like(maze24)+((maze24<9)*maze24)
+maze26=np.ones_like(maze25)+((maze25<9)*maze25)
+maze27=np.ones_like(maze26)+((maze26<9)*maze26)
+maze28=np.ones_like(maze27)+((maze27<9)*maze27)
+
+maze2=np.block([
+    [maze2,maze21,maze22,maze23,maze24],
+    [maze21,maze22,maze23,maze24,maze25],
+    [maze22,maze23,maze24,maze25,maze26],
+    [maze23,maze24,maze25,maze26,maze27],
+    [maze24,maze25,maze26,maze27,maze28]
+])
+
+
+
+maze2=np.pad(maze2,1,'constant',constant_values=10000)
+
+
+def djikstra(maze):
     
-    result=0
+
+    # These are all the nodes which have not been visited yet
+    unvisited = {(index[0]+1,index[1]+1): 10000 for index,_ in np.ndenumerate(maze2[1:-1,1:-1])}
+    # It will store the shortest distance from one node to another
+    visited = {}
+    h=[]
+    heapq.heappush
+    current = (1,1)
+    # It will store the predecessors of the nodes
+    currentDistance = 0
+    unvisited[current] = currentDistance
+    # Running the loop while all the nodes have been visited
+    while True:
+        # iterating through all the unvisited node
+        for neighbour, distance in zip([
+            (current[0],current[1]+1),
+            (current[0],current[1]-1),
+            (current[0]+1,current[1]),
+            (current[0]-1,current[1])],
+            [maze2[(current[0],current[1]+1)],
+            maze2[(current[0],current[1]-1)],
+            maze2[(current[0]+1,current[1])],
+            maze2[(current[0]-1,current[1])]
+            ]):
+            # Iterating through the connected nodes of current_node (for 
+            # example, a is connected with b and c having values 10 and 3
+            # respectively) and the weight of the edges
+            if neighbour not in unvisited: continue
+            newDistance = currentDistance + distance
+            if unvisited[neighbour] is None or unvisited[neighbour] > newDistance:
+                unvisited[neighbour] = newDistance
+                heapq.heappush(h,(newDistance,neighbour))
+        # Till now the shortest distance between the source node and target node 
+        # has been found. Set the current node as the target node
+        visited[current] = currentDistance
+        if current==(maze2.shape[0]-2,maze2.shape[1]-2):return visited
+        del unvisited[current]
+        if not unvisited: break
+        
+        currentDistance,current =heapq.heappop(h)
+        #current, currentDistance = sorted(unvisited.items(), key = lambda x: x[1])[0]
+
+    return visited
     
-    if args.debug: print('[d]',data)
-    if args.verbose: print('Part_1 result = ',end='')
-    print(result)
+ret2=djikstra(maze2)[(maze2.shape[0]-2,maze2.shape[1]-2)]
 
-def Part2(args):
-    if args.test:
-        data=inputreader(FPATH+"test"+args.test+".txt")
-    else:
-        data=inputreader(FPATH+"input.txt")
-
-    result=0
-
-    if args.debug: print('[d]',data)
-    if args.verbose: print('Part_2 result = ',end='')
-    print(result)
-
-def inputreader(name):
-    inputFile=open(name,'r')
-    ret=[]
-    for line in inputFile:
-        ret.append(line.rstrip())
-    inputFile.close()
-    return ret
-
-def main(args):
-    """ Main entry point of the app """
     
-    if args.verbose: print("\nAdvent of Code 2021 - Day",DAY,'\n')
-    if args.debug: print("[d]",args)
-    if args.debug: print("[d]",FPATH)
-    starttime=time.time()
-    if args.part!='2':Part1(args)
-    halftime=time.time() 
-    if args.part!='1':Part2(args)
-    if args.verbose:
-        print('')
-        if args.part==0: 
-            print("Part 1 execution time = {:.6f} s".format(halftime-starttime))
-            print("Part 2 execution time = {:.6f} s".format(time.time()-halftime))
-        print("Total execution time  = {:.6f} s".format(time.time()-starttime))
-
-if __name__ == "__main__":
-    """ This is executed when run from the command line """
-    parser = argparse.ArgumentParser()
-
-    # Optional argument debug which defaults to False
-    parser.add_argument("-d",
-                        "--debug",
-                        action="store_true", 
-                        default=False,
-                        help="Enables debug messages")
-
-    # Optional argument which requires a parameter (eg. -d test)
-    parser.add_argument("-t",
-                        "--test",
-                        action="store",
-                        default="",
-                        dest="test",
-                        help='Enables test input file')
-
-
-    # Optional verbosity counter (eg. -v, -vv, -vvv, etc.)
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        default=False,
-        help="Enables verbose output")
-
-    # Optional part selection
-    parser.add_argument(
-        "-p",
-        "--part",
-        action="store",
-        default=0,
-        dest="part",
-        help="Select part")
-
-    # Specify output of "--version"
-    parser.add_argument(
-        "-V",
-        "--version",
-        action="version",
-        version="Version {version}".format(version=__version__))
-
-    args = parser.parse_args()
-    main(args)
-
+print(f"Part 2 result = {ret2}")
+print("Done in {:.6f} s".format(time.perf_counter()-starttime))
+#2838
