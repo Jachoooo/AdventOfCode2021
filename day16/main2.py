@@ -23,7 +23,7 @@ m=str(bin(int(m,base=16)))[6:]
 ret1=0
 def readpacket(msg):
     global ret1
-    print(msg[0:3],msg[3:6],msg[6:])
+    
     version=int(msg[0:3],base=2)
     ret1+=version
     Id=int(msg[3:6],base=2)
@@ -37,7 +37,7 @@ def readpacket(msg):
             msg=msg[5:]
             bitlen+=5
             if control=='0':
-                print('value =',int(value,base=2))
+                
                 return int(value,base=2),bitlen,msg   
     
     typ=int(msg[0],base=2)
