@@ -2,11 +2,9 @@ import time
 import numpy as np
 from collections import Counter
 
-from numpy.core.fromnumeric import sort
 
-
-
-FILENAME="input.txt"
+MINMATCH=12
+FILENAME="test.txt"
 if FILENAME[0:4]=="test":
     D=True
 else:
@@ -194,7 +192,6 @@ class scanner:
 print("\u001b[2J\u001b[0;0H")
 print(np.square(np.array([1,2,3,4,5])))
 
-
 with open(FILENAME,'r') as file:
     scanners=[]
     temp=[]
@@ -208,10 +205,7 @@ with open(FILENAME,'r') as file:
         else:
             temp.append(line.strip())
         
-
-        
-        
-MINMATCH=12
+       
 possiblepairs=[]
 for i in range(len(scanners)):
     for j in range(i+1,len(scanners)):
@@ -222,14 +216,13 @@ for i in range(len(scanners)):
             print(f'[{i},{j}] = ',len(list((c1&c2).elements())))
             possiblepairs.append((i,j))
 
-
 mat1=scanners[0].getCoords(1)
 offset0=mat1[0]-mat1[0]
 confirmed=dict()
 confirmed[0]=(1,offset0)
 progress=len(possiblepairs)
 
-confirmed={0: (1, np.array([0, 0, 0])), 
+'''confirmed={0: (1, np.array([0, 0, 0])), 
 2: (4, np.array([  62,   83, 1085])), 3: (19, np.array([  85, 1284,   -8])), 
 22: (10, np.array([-1120,    73,   -57])), 32: (13, np.array([   68,    72, -1227])), 
 4: (15, np.array([1283,   26, 1043])), 13: (24, np.array([  -11, -1141,  1124])), 
@@ -247,7 +240,7 @@ confirmed={0: (1, np.array([0, 0, 0])),
 20: (12, np.array([-3437,  1132,   -84])), 23: (13, np.array([-4639,   -75,   -58])), 
 26: (6, np.array([-4827,  1225,   -61])), 5: (18, np.array([-4699,  2391,  -178])), 
 14: (21, np.array([-5870,  1170,    -9])), 27: (17, np.array([-1065,   -43, -2540])),
-21: (23, np.array([ 1285, -1180,  2362]))}
+21: (23, np.array([ 1285, -1180,  2362]))}'''
 
 
 
@@ -272,11 +265,6 @@ while possiblepairs:
             break
         else:
             possiblepairs=possiblepairs[1:]
-
-
-    
-    
-
 
     try:
         possiblepairs.remove((A,B))
@@ -317,8 +305,6 @@ while possiblepairs:
                 print(f'[{A}]Offset = {offset} | {matches}')
         
         
-        
-
 beacons=[]        
 for scanner in scanners:
     try:
@@ -331,21 +317,13 @@ for scanner in scanners:
 
 res1=len(Counter(beacons))
 
-
 maxdist=0
 for scanner1 in scanners:
     for scanner2 in scanners:
     
         maxdist=max(maxdist,np.sum(np.abs(confirmed[int(scanner1.id)][1]-confirmed[int(scanner2.id)][1])))   
-    
-
-              
-        
-    
-
 
 
 print(f"\nPart 1 result = {res1}") 
-
 print(f"Part 2 result = {maxdist}")
 print("Done in {:.6f} s".format(time.perf_counter()-starttime))
