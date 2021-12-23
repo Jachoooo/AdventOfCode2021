@@ -1,112 +1,112 @@
-#!/usr/bin/env python3
-"""
-Advent of Code 2021
-"""
-__author__ = "Jachoooo"
-__version__ = "0.1.0"
-__license__ = "MIT"
-
-import argparse
 import time
-DAY = 0
-FPATH = __file__.rstrip(__file__.split('/')[-1])
-if FPATH == "" : FPATH = __file__.rstrip(__file__.split('\\')[-1])
+from collections import Counter
+import numpy as np
+from numpy.core.numerictypes import maximum_sctype
+import cProfile
+starttime=time.perf_counter()
+
+FILENAME="input.txt"
+D=False
+
+instructions=[]
+coords=[]
+with open(FILENAME,'r') as file:
+    for line in file:
+        instructions.append(line)
+
+class ID:
+  def __iter__(self):
+    self.a = 1
+    return self
+
+  def __next__(self):
+    x = self.a
+    self.a += 1
+    return x
+
+class inst:
+    def __init__(self,coords,onoff):
+        self.coords=coords
+        self.on=onoff
+
+
+class confirmedArea:
+    def __init__(self,coords,intersects,nonintersects):
+        self.coords=coords
+        self.nonintersects=nonintersects
+        self.intersects=intersects
+
+class cube:
+
+    def __init__(self,coords) -> None:
+        self.coords=coords
+        self.cutouts=[]
+
+    def addCutout(self,cutCoords):
+        retcoords=calcIntersect(self.coords,cutCoords)
+        if not retcoords:
+            return
+        for cutout in self.cutouts:
+            cutout.addCutout(retcoords)
+        self.cutouts.append(cube(retcoords))
+    def volume(self):
+        return calcArea(self.coords) - sum(cutout.volume() for cutout in self.cutouts)    
+
+
+def calcArea(retCoords):
+    area=1
+    for i in range(3):
+        area*=retCoords[i][1]+1-retCoords[i][0]
+    if area<=0:
+        return 0
+    return area
+
+def calcIntersect(Coords1,Coords2):
+    retCoords=[[0,0],[0,0],[0,0]]
+    for i in range(3):
+        retCoords[i][0]=max(Coords1[i][0],Coords2[i][0])
+        retCoords[i][1]=min(Coords1[i][1],Coords2[i][1])
+
+    area=calcArea(retCoords)
+    if area==0:
+        return None
+    return retCoords
 
 
 
-def Part1(args):
-    if args.test:
-        data=inputreader(FPATH+"test"+args.test+".txt")
-    else:
-        data=inputreader(FPATH+"input.txt")
-    
-    result=0
-    
-    if args.debug: print('[d]',data)
-    if args.verbose: print('Part_1 result = ',end='')
-    print(result)
-
-def Part2(args):
-    if args.test:
-        data=inputreader(FPATH+"test"+args.test+".txt")
-    else:
-        data=inputreader(FPATH+"input.txt")
-
-    result=0
-
-    if args.debug: print('[d]',data)
-    if args.verbose: print('Part_2 result = ',end='')
-    print(result)
-
-def inputreader(name):
-    inputFile=open(name,'r')
-    ret=[]
-    for line in inputFile:
-        ret.append(line.rstrip())
-    inputFile.close()
-    return ret
-
-def main(args):
-    """ Main entry point of the app """
-    
-    if args.verbose: print("\nAdvent of Code 2021 - Day",DAY,'\n')
-    if args.debug: print("[d]",args)
-    if args.debug: print("[d]",FPATH)
-    starttime=time.time()
-    if args.part!='2':Part1(args)
-    halftime=time.time() 
-    if args.part!='1':Part2(args)
-    if args.verbose:
-        print('')
-        if args.part==0: 
-            print("Part 1 execution time = {:.6f} s".format(halftime-starttime))
-            print("Part 2 execution time = {:.6f} s".format(time.time()-halftime))
-        print("Total execution time  = {:.6f} s".format(time.time()-starttime))
-
-if __name__ == "__main__":
-    """ This is executed when run from the command line """
-    parser = argparse.ArgumentParser()
-
-    # Optional argument debug which defaults to False
-    parser.add_argument("-d",
-                        "--debug",
-                        action="store_true", 
-                        default=False,
-                        help="Enables debug messages")
-
-    # Optional argument which requires a parameter (eg. -d test)
-    parser.add_argument("-t",
-                        "--test",
-                        action="store",
-                        default="",
-                        dest="test",
-                        help='Enables test input file')
+myclass = ID()
+myiter = iter(myclass)
 
 
-    # Optional verbosity counter (eg. -v, -vv, -vvv, etc.)
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        default=False,
-        help="Enables verbose output")
+with cProfile.Profile() as pr:
 
-    # Optional part selection
-    parser.add_argument(
-        "-p",
-        "--part",
-        action="store",
-        default=0,
-        dest="part",
-        help="Select part")
 
-    # Specify output of "--version"
-    parser.add_argument(
-        "-V",
-        "--version",
-        action="version",
-        version="Version {version}".format(version=__version__))
 
-    args = parser.parse_args()
-    main(args)
+    confirmedAreas=[]
+    res=0
+    for i,instruction in enumerate(instructions):
 
+        #Generate instruction from input
+        OnOff=instruction.split(' ')[0]
+        coords=instruction.split(' ')[1].strip().split(',')
+        coords=[[int(num) for num in coord[2:].split('..')] for coord in coords]
+        if OnOff=='on':
+            On=True
+        else:
+            On=False
+        
+        print(coords)
+
+        for area in confirmedAreas:
+            
+            area.addCutout(coords)
+        if On:
+            confirmedAreas.append(cube(coords))
+        if i>40:break
+        print(sum(area.volume() for area in confirmedAreas))
+
+pr.print_stats() 
+
+print(f"\nResult = {sum(area.volume() for area in confirmedAreas)}")  
+
+print("Done in {:.6f} s".format(time.perf_counter()-starttime))
