@@ -1,112 +1,107 @@
-#!/usr/bin/env python3
-"""
-Advent of Code 2021
-"""
-__author__ = "Jachoooo"
-__version__ = "0.1.0"
-__license__ = "MIT"
-
-import argparse
 import time
-DAY = 0
-FPATH = __file__.rstrip(__file__.split('/')[-1])
-if FPATH == "" : FPATH = __file__.rstrip(__file__.split('\\')[-1])
+from copy import copy
+from math import floor
+
+FILENAME="input.txt"
+if FILENAME=="test.txt":
+    D=True 
+else:
+    D=False
+starttime=time.perf_counter()
+
+
+registers={'w':0,
+    'x':0,
+    'y':0,
+    'z':0}
+num='13579246899990'
+num='__________0190'
+iternum=iter(num)
+blocks=[]
+instructions=[]
+
+with open(FILENAME,'r') as file:
+    for line in file:
+        
+        if line[0:3]=='inp':
+            if instructions:
+                blocks.append(instructions)
+            instructions=[]
+        else:
+            instructions.append(line.strip())
+    blocks.append(instructions)
+
+print("\u001b[2J\u001b[0;0H")
+
+def execfile(registers,instructions):
+    print("\u001b[0;0H")
+    for i,line in enumerate(instructions):
+        
+        inst=line[:3]
+        nums=line[4:]
+        print(f'[{i}] | {inst},{nums}    \t{registers}                          ')
+
+        
+        
+        global iternum
+        if inst=='inp':
+            break
+            registers[nums]=int(next(iternum))
+            print('-'*60,registers[nums])
+            continue
+
+        a,b=nums.split(' ')
+
+        if b.replace('-','').isnumeric():
+            b=int(b)
+        else:
+            b=registers[b]
+
+        match inst:    
+            case 'add':
+                registers[a]=registers[a]+b    
+
+            case 'mul':
+                registers[a]=registers[a]*b 
+
+            case 'div':
+                if b==0: raise ValueError
+                registers[a]=floor(registers[a]/b)
+
+
+            case 'mod':
+                if registers[a]<0 or b<=0: raise ValueError
+                registers[a]=registers[a]%b
+
+            case 'eql':
+                if registers[a]==b:
+                    registers[a]=1
+                else:
+                    registers[a]=0
 
 
 
-def Part1(args):
-    if args.test:
-        data=inputreader(FPATH+"test"+args.test+".txt")
-    else:
-        data=inputreader(FPATH+"input.txt")
-    
-    result=0
-    
-    if args.debug: print('[d]',data)
-    if args.verbose: print('Part_1 result = ',end='')
-    print(result)
-
-def Part2(args):
-    if args.test:
-        data=inputreader(FPATH+"test"+args.test+".txt")
-    else:
-        data=inputreader(FPATH+"input.txt")
-
-    result=0
-
-    if args.debug: print('[d]',data)
-    if args.verbose: print('Part_2 result = ',end='')
-    print(result)
-
-def inputreader(name):
-    inputFile=open(name,'r')
-    ret=[]
-    for line in inputFile:
-        ret.append(line.rstrip())
-    inputFile.close()
-    return ret
-
-def main(args):
-    """ Main entry point of the app """
-    
-    if args.verbose: print("\nAdvent of Code 2021 - Day",DAY,'\n')
-    if args.debug: print("[d]",args)
-    if args.debug: print("[d]",FPATH)
-    starttime=time.time()
-    if args.part!='2':Part1(args)
-    halftime=time.time() 
-    if args.part!='1':Part2(args)
-    if args.verbose:
-        print('')
-        if args.part==0: 
-            print("Part 1 execution time = {:.6f} s".format(halftime-starttime))
-            print("Part 2 execution time = {:.6f} s".format(time.time()-halftime))
-        print("Total execution time  = {:.6f} s".format(time.time()-starttime))
-
-if __name__ == "__main__":
-    """ This is executed when run from the command line """
-    parser = argparse.ArgumentParser()
-
-    # Optional argument debug which defaults to False
-    parser.add_argument("-d",
-                        "--debug",
-                        action="store_true", 
-                        default=False,
-                        help="Enables debug messages")
-
-    # Optional argument which requires a parameter (eg. -d test)
-    parser.add_argument("-t",
-                        "--test",
-                        action="store",
-                        default="",
-                        dest="test",
-                        help='Enables test input file')
+            case _:
+                raise ValueError
+    return registers
 
 
-    # Optional verbosity counter (eg. -v, -vv, -vvv, etc.)
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        default=False,
-        help="Enables verbose output")
+blocks.reverse()
 
-    # Optional part selection
-    parser.add_argument(
-        "-p",
-        "--part",
-        action="store",
-        default=0,
-        dest="part",
-        help="Select part")
 
-    # Specify output of "--version"
-    parser.add_argument(
-        "-V",
-        "--version",
-        action="version",
-        version="Version {version}".format(version=__version__))
 
-    args = parser.parse_args()
-    main(args)
 
+for w in range(0,10):
+    for z in range(10000):   
+        registers={'w':w,
+            'x':0,
+            'y':0,
+            'z':z}
+        
+        if(execfile(registers,blocks[0])['z']==594):
+            print(f'w={w}\tz={z}')
+'43210'
+'99920'    
+print(f"\nPart 1 result = {registers['z']}")     
+print(f"Part 2 result = {0}")
+print("Done in {:.6f} s".format(time.perf_counter()-starttime))
