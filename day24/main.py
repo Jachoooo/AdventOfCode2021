@@ -34,12 +34,12 @@ with open(FILENAME,'r') as file:
 print("\u001b[2J\u001b[0;0H")
 
 def execfile(registers,instructions):
-    print("\u001b[0;0H")
+    
     for i,line in enumerate(instructions):
         
         inst=line[:3]
         nums=line[4:]
-        print(f'[{i}] | {inst},{nums}    \t{registers}                          ')
+        #print(f'[{i}] | {inst},{nums}    \t{registers}                          ')
 
         
         
@@ -86,22 +86,86 @@ def execfile(registers,instructions):
     return registers
 
 
-blocks.reverse()
+for block in blocks:
+    print("\u001b[0;0H")
+    for line in block:
+        print(line,'     ')
+    
+
+for i,block in enumerate(blocks):
+    print(str(i).rjust(10, ' '),end=',')
+print('')
+for block in blocks:
+    print(block[3][:].rjust(10, ' '),end=',')
+print('')
+for block in blocks:
+    print(block[4][:].rjust(10, ' '),end=',')
+print('')
+for block in blocks:
+    print(block[14][:].rjust(10, ' '),end=',')
+print('')
+
+pairs=[(0,13),
+    (1,12),
+    (2,3),
+    (4,5),
+    (6,7),
+    (9,10),
+    (8,11)]
+
+pairdict={}
+
+for pair in pairs:
+    for w2 in range(1,10):  
+        for w in range(1,10):   
+            registers={'w':w,
+                'x':0,
+                'y':0,
+                'z':0}
+            
+            registers=execfile(registers,blocks[pair[0]])
+            registers['w']=w2
+            if execfile(registers,blocks[pair[1]])['z']==0:
+                pairdict[str(pair)]=(w,w2)
+
+print(pairdict)
+temp=['_','_','_','_','_','_','_','_','_','_','_','_','_','_'] 
+
+for pair in pairs:
+    temp[pair[0]]=pairdict[str(pair)][0]
+    temp[pair[1]]=pairdict[str(pair)][1]
+
+res1=''
+for c in temp:
+    res1+=str(c)
 
 
 
 
-for w in range(0,10):
-    for z in range(10000):   
-        registers={'w':w,
-            'x':0,
-            'y':0,
-            'z':z}
-        
-        if(execfile(registers,blocks[0])['z']==594):
-            print(f'w={w}\tz={z}')
-'43210'
-'99920'    
-print(f"\nPart 1 result = {registers['z']}")     
-print(f"Part 2 result = {0}")
+for pair in pairs:
+    for w2 in range(1,10).__reversed__():  
+        for w in range(1,10).__reversed__():   
+            registers={'w':w,
+                'x':0,
+                'y':0,
+                'z':0}
+            
+            registers=execfile(registers,blocks[pair[0]])
+            registers['w']=w2
+            if execfile(registers,blocks[pair[1]])['z']==0:
+                pairdict[str(pair)]=(w,w2)
+
+print(pairdict)
+temp=['_','_','_','_','_','_','_','_','_','_','_','_','_','_'] 
+
+for pair in pairs:
+    temp[pair[0]]=pairdict[str(pair)][0]
+    temp[pair[1]]=pairdict[str(pair)][1]
+
+res2=''
+for c in temp:
+    res2+=str(c)
+
+print(f"\nPart 1 result = {res1}")     
+print(f"Part 2 result = {res2}")
 print("Done in {:.6f} s".format(time.perf_counter()-starttime))
